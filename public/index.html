@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrix Effect</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      color: green;
+      font-family: monospace;
+    }
+    canvas {
+      display: block;
+    }
+    #input {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      color: green;
+      background: black;
+      border: none;
+      font-size: 20px;
+      outline: none;
+      font-family: monospace;
+    }
+    .jumpscare {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://i.ytimg.com/vi/RNoHcWE8tbQ/maxresdefault.jpg') no-repeat center center;
+      background-size: cover;
+      display: none;
+      z-index: 999;
+      transition: opacity 3s;
+    }
+    .red-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 0, 0, 0.7);
+      animation: bloodFlow 3s infinite;
+    }
+    .message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: red;
+      font-size: 60px;
+      text-align: center;
+      display: none;
+      z-index: 1000;
+    }
+    .reply {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: green;
+      font-size: 50px;
+      text-align: center;
+      display: none;
+      z-index: 1000;
+    }
+    .particle {
+      position: absolute;
+      background: red;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    @keyframes bloodFlow {
+      0% { background: rgba(255, 0, 0, 0.5); }
+      50% { background: rgba(255, 0, 0, 0.7); }
+      100% { background: rgba(255, 0, 0, 0.5); }
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @keyframes particleFadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <input type="text" id="input" placeholder="Type something...">
+  <canvas id="matrix"></canvas>
+  <div class="jumpscare" id="jumpscare">
+    <div class="red-overlay"></div>
+  </div>
+  <div class="message" id="message">YOU HAVE BEEN HACKED!</div>
+  <div class="reply" id="reply"></div>
+  <audio id="jumpscare-sound" src="public/yeet.ogg"></audio>
+  <script>
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    const input = document.getElementById('input');
+    const jumpscare = document.getElementById('jumpscare');
+    const jumpscareSound = document.getElementById('jumpscare-sound');
+    const message = document.getElementById('message');
+    const reply = document.getElementById('reply');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+    let inputText = '';
+    let messageCount = 0;
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#0f0';
+      ctx.font = `${fontSize}px monospace`;
+
+      drops.forEach((y, index) => {
+        const text = inputText[index % inputText.length] || getRandomMatrixChar();
+        const x = index * fontSize;
+        ctx.fillText(text, x, y * fontSize);
+
+        if (y * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[index] = 0;
+        }
+        drops[index]++;
+      });
+
+      drawHackerFaces();
+    }
+
+    function getRandomMatrixChar() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      return chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    function updateInput(event) {
+      inputText = event.target.value;
+      if (inputText.toLowerCase().includes('hacker')) {
+        triggerJumpscare();
+      } else if (inputText.toLowerCase() === 'yes' || inputText.toLowerCase() === 'no') {
+        handleReply(inputText.toLowerCase());
+        messageCount++;
+        if (messageCount >= 10 && Math.random() > 0.5) {
+          triggerJumpscare();
+        }
+      }
+    }
+
+    function handleReply(response) {
+      reply.textContent = response.toUpperCase();
+      reply.style.display = 'block';
+      fadeOutReply();
+    }
+
+    function fadeOutReply() {
+      reply.style.animation = 'fadeOut 2s forwards';
+      createBloodParticles(reply);
+    }
+
+    function createBloodParticles(element) {
+      const numParticles = 50;
+      for (let i = 0; i < numParticles; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.width = '5px';
+        particle.style.height = '5px';
+        particle.style.top = `${Math.random() * 100}%`;
+        particle.style.left = `${Math.random() * 100}%`;
+        document.body.appendChild(particle);
+        animateParticle(particle);
+      }
+    }
+
+    function animateParticle(particle) {
+      const duration = 2;
+      particle.style.animation = `particleFadeOut ${duration}s forwards`;
+      setTimeout(() => {
+        particle.remove();
+      }, duration * 1000);
+    }
+
+    function triggerJumpscare() {
+      jumpscare.style.display = 'block';
+      jumpscareSound.play();
+      message.style.display = 'block';
+      animateMessage();
+      induceLag();
+      setTimeout(() => {
+        jumpscare.style.opacity = '0';
+        setTimeout(() => {
+          window.location.href = 'about:blank';  // Exit the webpage
+        }, 3000);  // Duration for fade-out
+      }, 3000);  // Jumpscare duration
+    }
+
+    function animateMessage() {
+      let messageText = 'YOU HAVE BEEN HACKED!';
+      let encryptedText = '';
+      const interval = setInterval(() => {
+        encryptedText += getRandomMatrixChar();
+        message.textContent = encryptedText;
+        if (encryptedText.length === messageText.length) {
+          clearInterval(interval);
+          message.textContent = messageText;
+        }
+      }, 100);  // Speed of encryption
+    }
+
+    function induceLag() {
+      // Intensive operation to induce lag
+      for (let i = 0; i < 1e7; i++) {
+        Math.sqrt(Math.random());  // Arbitrary computation to cause lag
+      }
+    }
+
+    document.getElementById('input').addEventListener('input', updateInput);
+
+    setInterval(drawMatrix, 50);
+
+    function drawHackerFaces() {
+      const faceSize = 8;
+      const rows = Math.floor(canvas.height / faceSize);
+      const cols = Math.floor(canvas.width / faceSize);
+
+      for (let i = 0; i < 5; i++) {
+        const x = Math.floor(Math.random() * cols) * faceSize;
+        const y = Math.floor(Math.random() * rows) * faceSize;
+        drawFace(x, y, faceSize);
+      }
+    }
+
+    function drawFace(x, y, size) {
+      ctx.fillStyle = '#0f0';
+      for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+          if (Math.random() > 0.5) {
+            ctx.fillRect(x + i, y + j, 1, 1);
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
