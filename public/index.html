@@ -41,7 +41,7 @@
       background-size: cover;
       display: none;
       z-index: 999;
-      transition: opacity 3s;
+      transition: opacity 2s; /* Shorter transition time */
     }
     .red-overlay {
       position: absolute;
@@ -49,8 +49,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255, 0, 0, 0.7);
-      animation: bloodFlow 3s infinite;
+      background: rgba(255, 0, 0, 0.9); /* Darker red overlay */
+      animation: bloodFlow 2s infinite; /* Faster blood flow animation */
     }
     .message {
       position: fixed;
@@ -63,20 +63,10 @@
       display: none;
       z-index: 1000;
     }
-    .particle {
-      position: absolute;
-      background: red;
-      border-radius: 50%;
-      pointer-events: none;
-    }
     @keyframes bloodFlow {
-      0% { background: rgba(255, 0, 0, 0.5); }
-      50% { background: rgba(255, 0, 0, 0.7); }
-      100% { background: rgba(255, 0, 0, 0.5); }
-    }
-    @keyframes particleFadeOut {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
+      0% { background: rgba(255, 0, 0, 0.8); }
+      50% { background: rgba(255, 0, 0, 1); }
+      100% { background: rgba(255, 0, 0, 0.8); }
     }
   </style>
 </head>
@@ -89,7 +79,7 @@
     <div class="red-overlay"></div>
   </div>
   <div class="message" id="message">YOU HAVE BEEN HACKED!</div>
-  <audio id="jumpscare-sound" src="public/yeet.ogg"></audio>
+  <audio id="jumpscare-sound" src="https://www.soundjay.com/button/beep-07.wav"></audio> <!-- Using a public sample for testing -->
   <script>
     const canvas = document.getElementById('matrix');
     const ctx = canvas.getContext('2d');
@@ -141,8 +131,8 @@
         jumpscare.style.opacity = '0';
         setTimeout(() => {
           window.location.href = 'about:blank';  // Exit the webpage
-        }, 3000);  // Duration for fade-out
-      }, 3000);  // Jumpscare duration
+        }, 2000);  // Reduced time to make it scarier
+      }, 2000);  // Reduced jumpscare duration
     }
 
     function animateMessage() {
@@ -155,11 +145,11 @@
           clearInterval(interval);
           message.textContent = messageText;
         }
-      }, 100);  // Speed of encryption
+      }, 50);  // Faster speed of encryption
     }
 
     function induceLag() {
-      // Intensive operation to induce lag
+      // Immediate intensive operation to induce lag
       for (let i = 0; i < 1e7; i++) {
         Math.sqrt(Math.random());  // Arbitrary computation to cause lag
       }
@@ -174,7 +164,7 @@
       const rows = Math.floor(canvas.height / faceSize);
       const cols = Math.floor(canvas.width / faceSize);
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {  // Increased number of faces
         const x = Math.floor(Math.random() * cols) * faceSize;
         const y = Math.floor(Math.random() * rows) * faceSize;
         drawFace(x, y, faceSize);
