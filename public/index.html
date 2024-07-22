@@ -15,28 +15,21 @@
     canvas {
       display: block;
     }
-    #input-container {
+    #button-container {
       position: fixed;
-      top: 10px;
-      left: 10px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
     }
-    #input {
-      color: green;
-      background: black;
-      border: none;
-      font-size: 20px;
-      outline: none;
-      font-family: monospace;
-      width: 200px;
-    }
-    #send-button {
+    #free-load-button {
       color: green;
       background: black;
       border: 1px solid green;
-      font-size: 20px;
+      font-size: 40px;  /* Increased font size */
       font-family: monospace;
       cursor: pointer;
-      margin-left: 5px;
+      padding: 20px 40px;  /* Increased padding */
     }
     .jumpscare {
       position: fixed;
@@ -70,17 +63,6 @@
       display: none;
       z-index: 1000;
     }
-    .reply {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: green;
-      font-size: 50px;
-      text-align: center;
-      display: none;
-      z-index: 1000;
-    }
     .particle {
       position: absolute;
       background: red;
@@ -92,10 +74,6 @@
       50% { background: rgba(255, 0, 0, 0.7); }
       100% { background: rgba(255, 0, 0, 0.5); }
     }
-    @keyframes fadeOut {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
-    }
     @keyframes particleFadeOut {
       0% { opacity: 1; }
       100% { opacity: 0; }
@@ -103,26 +81,22 @@
   </style>
 </head>
 <body>
-  <div id="input-container">
-    <input type="text" id="input" placeholder="Type something...">
-    <button id="send-button">Send</button>
+  <div id="button-container">
+    <button id="free-load-button">FREE LOAD</button>
   </div>
   <canvas id="matrix"></canvas>
   <div class="jumpscare" id="jumpscare">
     <div class="red-overlay"></div>
   </div>
   <div class="message" id="message">YOU HAVE BEEN HACKED!</div>
-  <div class="reply" id="reply"></div>
   <audio id="jumpscare-sound" src="public/yeet.ogg"></audio>
   <script>
     const canvas = document.getElementById('matrix');
     const ctx = canvas.getContext('2d');
-    const input = document.getElementById('input');
-    const sendButton = document.getElementById('send-button');
+    const freeLoadButton = document.getElementById('free-load-button');
     const jumpscare = document.getElementById('jumpscare');
     const jumpscareSound = document.getElementById('jumpscare-sound');
     const message = document.getElementById('message');
-    const reply = document.getElementById('reply');
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -130,8 +104,6 @@
     const fontSize = 16;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
-    let inputText = '';
-    let messageCount = 0;
 
     function drawMatrix() {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
@@ -141,7 +113,7 @@
       ctx.font = `${fontSize}px monospace`;
 
       drops.forEach((y, index) => {
-        const text = inputText[index % inputText.length] || getRandomMatrixChar();
+        const text = getRandomMatrixChar();
         const x = index * fontSize;
         ctx.fillText(text, x, y * fontSize);
 
@@ -157,52 +129,6 @@
     function getRandomMatrixChar() {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       return chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    function updateInput() {
-      inputText = input.value;
-      if (inputText.toLowerCase().includes('hacker')) {
-        triggerJumpscare();
-      } else if (inputText.toLowerCase() === 'yes' || inputText.toLowerCase() === 'no') {
-        handleReply(inputText.toLowerCase());
-        messageCount++;
-        if (messageCount >= 10 && Math.random() > 0.5) {
-          triggerJumpscare();
-        }
-      }
-    }
-
-    function handleReply(response) {
-      reply.textContent = response.toUpperCase();
-      reply.style.display = 'block';
-      fadeOutReply();
-    }
-
-    function fadeOutReply() {
-      reply.style.animation = 'fadeOut 2s forwards';
-      createBloodParticles(reply);
-    }
-
-    function createBloodParticles(element) {
-      const numParticles = 50;
-      for (let i = 0; i < numParticles; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.width = '5px';
-        particle.style.height = '5px';
-        particle.style.top = `${Math.random() * 100}%`;
-        particle.style.left = `${Math.random() * 100}%`;
-        document.body.appendChild(particle);
-        animateParticle(particle);
-      }
-    }
-
-    function animateParticle(particle) {
-      const duration = 2;
-      particle.style.animation = `particleFadeOut ${duration}s forwards`;
-      setTimeout(() => {
-        particle.remove();
-      }, duration * 1000);
     }
 
     function triggerJumpscare() {
@@ -239,7 +165,7 @@
       }
     }
 
-    sendButton.addEventListener('click', updateInput);
+    freeLoadButton.addEventListener('click', triggerJumpscare);
 
     setInterval(drawMatrix, 50);
 
