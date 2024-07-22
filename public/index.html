@@ -15,16 +15,28 @@
     canvas {
       display: block;
     }
-    #input {
+    #input-container {
       position: fixed;
       top: 10px;
       left: 10px;
+    }
+    #input {
       color: green;
       background: black;
       border: none;
       font-size: 20px;
       outline: none;
       font-family: monospace;
+      width: 200px;
+    }
+    #send-button {
+      color: green;
+      background: black;
+      border: 1px solid green;
+      font-size: 20px;
+      font-family: monospace;
+      cursor: pointer;
+      margin-left: 5px;
     }
     .jumpscare {
       position: fixed;
@@ -91,7 +103,10 @@
   </style>
 </head>
 <body>
-  <input type="text" id="input" placeholder="Type something...">
+  <div id="input-container">
+    <input type="text" id="input" placeholder="Type something...">
+    <button id="send-button">Send</button>
+  </div>
   <canvas id="matrix"></canvas>
   <div class="jumpscare" id="jumpscare">
     <div class="red-overlay"></div>
@@ -103,6 +118,7 @@
     const canvas = document.getElementById('matrix');
     const ctx = canvas.getContext('2d');
     const input = document.getElementById('input');
+    const sendButton = document.getElementById('send-button');
     const jumpscare = document.getElementById('jumpscare');
     const jumpscareSound = document.getElementById('jumpscare-sound');
     const message = document.getElementById('message');
@@ -143,8 +159,8 @@
       return chars.charAt(Math.floor(Math.random() * chars.length));
     }
 
-    function updateInput(event) {
-      inputText = event.target.value;
+    function updateInput() {
+      inputText = input.value;
       if (inputText.toLowerCase().includes('hacker')) {
         triggerJumpscare();
       } else if (inputText.toLowerCase() === 'yes' || inputText.toLowerCase() === 'no') {
@@ -223,7 +239,7 @@
       }
     }
 
-    document.getElementById('input').addEventListener('input', updateInput);
+    sendButton.addEventListener('click', updateInput);
 
     setInterval(drawMatrix, 50);
 
